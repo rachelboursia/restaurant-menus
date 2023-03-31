@@ -1,5 +1,6 @@
 const {sequelize} = require('./db')
-const {Restaurant, Menu, Restaurant} = require('./models/index')
+const path = require('path');
+const {Restaurant, Menu, Item} = require('./models/index')
 const {
     seedRestaurant,
     seedMenu,
@@ -40,72 +41,45 @@ describe('Restaurant and Menu Models', () => {
         expect(dessertMenu.title).toEqual('Dessert Menu')
     });
 
-    test('can find restaurants', async () => {
-        const restaurant1 = await Menu.findAll({
-            where: {
-                title: 'Wendys',
-                location: 'Seattle',
-                cuisine: 'Fast Food'
-            }
-        });
-        const restaurant2 = await Menu.findAll({
-            where: {
-                title: 'Zestos',
-                location: 'Seattle',
-                cuisine: 'Fast Food'
-            }
-        });
-        expect(restaurant1[0].title).toEqual('Wendys');
-        expect(restaurant1[0].location).toEqual('Seattle');
-        expect(restaurant1[0].cuisine).toEqual('Fast Food');
-        expect(restaurant2[0].title).toEqual('Zestos');
-        expect(restaurant2[0].location).toEqual('Seattle');
-        expect(restaurant2[0].cuisine).toEqual('Fast Food');
+  test('can find restaurants', async () => {
+    const restaurant1 = await Restaurant.findOne({
+      where: {
+        name: 'Wendys',
+        location: 'Seattle',
+        cuisine: 'Fast Food'
+      },
     });
-    
+    expect(restaurant1).toBeDefined();
+    expect(restaurant1.name).toBe('Wendys');
+    expect(restaurant1.location).toBe('Seattle');
+    expect(restaurant1.cuisine).toBe('Fast Food');
+});
 
-    test('can find Menus', async () => {
-        // TODO - write test
-        const menu1 = await Menu.findOne({
-            where: { 
-                title: 'Cheeseburger',
-                price: 5.99,
-                restaurantId: 1
-            }
-        });
-        const menu2 = await Menu.findOne({
-            where: {
-                title: 'French Fries',
-                price: 2.99,
-                restaurantId:1
-            }
-        });
-        expect(menu1.title).toEqual('Cheeseburger');
-        expect(menu1.price).toEqual(5.99);
-        expect(menu1.restaurantId).toEqual(1);
-        expect(menu2.title).toEqual('French Fries');
-        expect(menu2.price).toEqual(2.99);
-        expect(menu2.restaurantId).toEqual(1);
+test('can find menus', async () => {
+    const dinnerMenu = await Menu.findOne({
+      where: {
+        title: 'Dinner Menu'
+      },
     });
+    expect(dinnerMenu).toBeDefined();
+    expect(dinnerMenu.title).toBe('Dinner Menu');
+});
+
+      
 
     test('can delete Restaurants', async () => {
-        // TODO - write test
-        const restaurant = await Restaurant.destroy({
-               where:  {
-                name: 'Wendys',
-                location: 'Seattle',
-                cuisine: 'Fast Food'
-            }
+        const restaurant = await Restaurant.create({
+          title: ' Wendys',
+          location: 'Seattle'
         });
-        const deleted = await restaurant.destroy();
-        expect(deleted).toEqual(expect.any(Number));
-        const deletedRestaurant = await Restaurant.findOne({
-            where: {
-                name: 'Wendys',
-                location: 'Seattle',
-                cuisine: 'Fast Food'
-            }
-        });
+        const restaurantId = restaurant.id;
+      
+        const deletedCount = await Restaurant.destroy({ where: { id: restaurantId } });
+        expect(deletedCount).toBe(1);
+      
+        const deletedRestaurant = await Restaurant.findOne({ where: { id: restaurantId } });
         expect(deletedRestaurant).toBeNull();
-    });
+      });
+      
 })
+
